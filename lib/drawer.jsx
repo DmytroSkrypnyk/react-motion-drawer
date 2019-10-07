@@ -1,19 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Motion, spring } from "react-motion";
-import Hammer from "react-hammerjs";
-import isFunction from "1-liners/isFunction";
-import styles from "./styles";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Motion, spring } from 'react-motion'
+import Hammer from 'react-hammerjs'
+import isFunction from '1-liners/isFunction'
+import styles from './styles'
 
-const {
-  bool,
-  number,
-  array,
-  object,
-  string,
-  func,
-  oneOfType
-} = PropTypes;
+const { bool, number, array, object, string, func, oneOfType } = PropTypes
 
 export default class Drawer extends React.Component {
   static propTypes = {
@@ -39,197 +31,177 @@ export default class Drawer extends React.Component {
     overlayColor: string, // color of the overlay
     fadeOut: bool, // fade out
     offset: number // offset
-  };
+  }
 
   static defaultProps = {
     zIndex: 10000,
     noTouchOpen: false,
     noTouchClose: false,
-    onChange: () => {},
-    overlayColor: "rgba(0, 0, 0, 0.4)",
+    onChange: () => { },
+    overlayColor: 'rgba(0, 0, 0, 0.4)',
     config: { stiffness: 350, damping: 40 },
     open: false,
     width: 300,
-    height: "100%",
+    height: '100%',
     handleWidth: 20,
     peakingWidth: 50,
     panTolerance: 50,
     right: false,
     fadeOut: false,
     offset: 0
-  };
+  }
 
   componentWillReceiveProps(nextProps) {
-    const { open } = this.props;
-    const { open: nextOpen } = nextProps;
+    const { open } = this.props
+    const { open: nextOpen } = nextProps
 
     if (nextOpen !== open) {
-      if (nextOpen) this.open();
-      else this.close();
+      if (nextOpen) this.open()
+      else this.close()
     }
   }
 
   state = {
-    currentState: "CLOSED"
-  };
+    currentState: 'CLOSED'
+  }
 
-  isState = s => s === this.state.currentState;
-  isClosed = () => this.isState("CLOSED");
-  isOpen = () => this.isState("OPEN");
-  isOpening = () => this.isState("IS_OPENING");
-  isClosing = () => this.isState("IS_CLOSING");
+  isState = s => s === this.state.currentState
+  isClosed = () => this.isState('CLOSED')
+  isOpen = () => this.isState('OPEN')
+  isOpening = () => this.isState('IS_OPENING')
+  isClosing = () => this.isState('IS_CLOSING')
 
   peak() {
-    const { onChange, handleWidth } = this.props;
-    onChange(false);
-    return this.setState({ currentState: "PEAK", x: handleWidth });
+    const { onChange, handleWidth } = this.props
+    onChange(false)
+    return this.setState({ currentState: 'PEAK', x: handleWidth })
   }
 
   close() {
-    this.props.onChange(false);
-    return this.setState({ currentState: "CLOSED", x: 0 });
+    this.props.onChange(false)
+    return this.setState({ currentState: 'CLOSED', x: 0 })
   }
 
   open() {
-    const { onChange, width } = this.props;
-    onChange(true);
-
-    return this.setState({ currentState: "OPEN", x: this.calculateWidth() });
+    const { onChange } = this.props
+    onChange(true)
+    return this.setState({ currentState: 'OPEN', x: this.calculateWidth() })
   }
 
   isClosingDirection(direction) {
-    const { right } = this.props;
-    const isClosing = direction === 2;
+    const { right } = this.props
+    const isClosing = direction !== 4
 
-    if (right) return !isClosing;
-    else return isClosing;
+    if (right) return !isClosing
+    else return isClosing
   }
 
   closingOrOpening(direction) {
-    return this.isClosingDirection(direction) ? "IS_CLOSING" : "IS_OPENING";
+    return this.isClosingDirection(direction) ? 'IS_CLOSING' : 'IS_OPENING'
   }
 
   inPanTolerance(deltaX) {
-    const { currentState } = this.state;
-    const { panTolerance } = this.props;
+    const { currentState } = this.state
+    const { panTolerance } = this.props
 
-    return Math.abs(deltaX) <= panTolerance && currentState === "OPEN";
+    return Math.abs(deltaX) <= panTolerance && currentState === 'OPEN'
   }
 
   onPress = e => {
-    const isTouchScroll = e.center.x >= (this.calculateWidth() - 17) && e.center.x <= this.calculateWidth()
+    const isTouchScroll = e.center.x >= this.calculateWidth() - 17 && e.center.x <= this.calculateWidth()
     if (this.props.noTouchOpen || isTouchScroll) return
-    e.preventDefault();
-    this.peak();
-  };
+    e.preventDefault()
+    this.peak()
+  }
 
   onPressUp = e => {
-    if (this.props.noTouchClose) return;
-    e.preventDefault();
-    this.close();
-  };
+    if (this.props.noTouchClose) return
+    e.preventDefault()
+    this.close()
+  }
 
   onPan = e => {
-    if (this.isClosed() && this.props.noTouchOpen) return;
-    if (this.isOpen() && this.props.noTouchClose) return;
-    e.preventDefault();
+    if (this.isClosed() && this.props.noTouchOpen) return
+    if (this.isOpen() && this.props.noTouchClose) return
+    e.preventDefault()
 
-    const { isFinal, pointers, direction, deltaX } = e;
-    if (this.inPanTolerance(deltaX)) return;
+    const { isFinal, pointers, direction, deltaX } = e
+    if (this.inPanTolerance(deltaX)) return
 
     if (isFinal) {
-      if (this.isOpening()) this.open();
-      else if (this.isClosing()) this.close();
-      return;
+      if (this.isOpening()) this.open()
+      else if (this.isClosing()) this.close()
+      return
     }
 
-    const { currentState } = this.state;
-    const { right, peakingWidth, handleWidth } = this.props;
-    const width = this.calculateWidth();
-    const { clientX } = pointers[0];
+    const { currentState } = this.state
+    const { right, peakingWidth, handleWidth } = this.props
+    const width = this.calculateWidth()
+    const { clientX } = pointers[0]
 
-    let x = right ? document.body.clientWidth - clientX : clientX;
+    let x = right ? document.body.clientWidth - clientX : clientX
 
-    if (x + peakingWidth >= width) x = width - peakingWidth;
+    if (x + peakingWidth >= width) x = width - peakingWidth
 
-    const closingOrOpening = this.closingOrOpening(direction);
+    const closingOrOpening = this.closingOrOpening(direction)
     const nextState = {
       PEAK: closingOrOpening,
       IS_OPENING: closingOrOpening,
       IS_CLOSING: closingOrOpening,
-      OPEN: "IS_CLOSING",
-      CLOSED: "PEAK"
-    };
+      OPEN: 'IS_CLOSING',
+      CLOSED: 'PEAK'
+    }
 
     this.setState({
       currentState: nextState[currentState],
       x: this.isClosed() ? peakingWidth : peakingWidth / 2 + x
-    });
-  };
+    })
+  }
 
   onOverlayTap = e => {
-    e.preventDefault();
-    if (this.isOpen()) this.close();
-  };
+    e.preventDefault()
+    if (this.isOpen()) this.close()
+  }
 
   calculateWidth = () => {
-    const width = this.props.width;
-    return /\%/.test(width)
-      ? document.body.clientWidth * (width.match(/\d*/) / 100)
-      : width;
-  };
+    const width = this.props.width
+    return /\%/.test(width) ? document.body.clientWidth * (width.match(/\d*/) / 100) : width
+  }
 
   render() {
-    const {
-      config,
-      drawerStyle,
-      className,
-      overlayClassName,
-      width,
-      children,
-      offset
-    } = this.props;
-    const { currentState, x } = this.state;
+    const { config, drawerStyle, className, overlayClassName, width, children, offset } = this.props
+    const { currentState, x } = this.state
 
     return (
       <Motion style={{ myProp: spring(Math.min(x + offset || 0, this.calculateWidth()), config) }}>
         {interpolated => {
-          const { drawer, transform, overlay } = styles(
-            interpolated.myProp,
-            this.props
-          );
+          const { drawer, transform, overlay } = styles(interpolated.myProp, this.props)
 
-          let computedStyle = {...drawer, ...drawerStyle };
-          if (interpolated.myProp > 0) computedStyle.display = "block";
-          else computedStyle.display = "none";
+          let computedStyle = { ...drawer, ...drawerStyle }
+          if (interpolated.myProp > 0) computedStyle.display = 'block'
+          else computedStyle.display = 'none'
 
           return (
             <Hammer
               onPress={this.onPress}
               onPressUp={this.onPressUp}
               onPan={this.onPan}
-              direction={Hammer.DIRECTION_HORIZONTAL}
-            >
+              direction={Hammer.DIRECTION_HORIZONTAL}>
               <div style={transform}>
                 <div className={className} style={computedStyle}>
-                  {isFunction(children)
-                    ? children(interpolated.myProp)
-                    : children}
+                  {isFunction(children) ? children(interpolated.myProp) : children}
 
-                  {!this.isClosed() &&
-                    <Hammer
-                      style={overlay}
-                      className={overlayClassName}
-                      onTap={this.onOverlayTap}
-                    >
+                  {!this.isClosed() && (
+                    <Hammer style={overlay} className={overlayClassName} onTap={this.onOverlayTap}>
                       <span />
-                    </Hammer>}
+                    </Hammer>
+                  )}
                 </div>
               </div>
             </Hammer>
-          );
+          )
         }}
       </Motion>
-    );
+    )
   }
 }

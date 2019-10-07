@@ -1,4 +1,4 @@
-<h1 align="center">react-motion-drawer</h1>
+<h1 align="center">react-motion-drawer-v1</h1>
 
 <p align="center">
 
@@ -11,8 +11,6 @@
 </p>
 
 > Navigation drawer built with the awesome [react-motion][rm] by [@chenglou][c] and [react-hammerjs][rh] by [@JedWatson][j]
-
-[![npm version](https://badge.fury.io/js/react-motion-drawer.svg)](https://badge.fury.io/js/react-motion-drawer)
 
 ## Example
 
@@ -28,13 +26,13 @@ $ yarn serve
 
 Via npm:
 ```
-npm install react-motion-drawer
+npm install react-motion-drawer-v1
 ```
 
 ## Usage
 
 ```js
-import Drawer from 'react-motion-drawer';
+import Drawer from 'react-motion-drawer-v1';
 ```
 
 ```jsx
@@ -99,7 +97,7 @@ You can hook into the animation by passing a function as the child component.
 
 ## License
 
-MIT © [Christoph Hermann](http://stoeffel.github.io)
+MIT © [Dmytro Skrypnyk](https://github.com/DmytroSkrypnyk) forked from (https://github.com/stoeffel/react-motion-drawer)
 
 [rm]: https://github.com/chenglou/react-motion
 [rh]: https://github.com/JedWatson/react-hammerjs
